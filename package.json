@@ -1,0 +1,19 @@
+{
+  "name": "node-health-agent",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "gh-wallet77:wallet77/node-health-agent.git"
+  },
+  "author": "wallet77",
+  "license": "MIT",
+  "dependencies": {
+    "inspector-api": "1.0.1",
+    "ws": "7.2.0"
+  }
+}
