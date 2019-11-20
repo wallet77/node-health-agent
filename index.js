@@ -15,7 +15,9 @@ const heartbeat = (ws) => {
 }
 
 const connectToWSS = async (config, inspector) => {
-    const ws = new WebSocket(`${config.serverUrl}/${os.hostname()}/${config.appName}`)
+    const WSSConfig = {}
+    if (config.token) WSSConfig.headers = { token: config.token }
+    const ws = new WebSocket(`${config.serverUrl}/${os.hostname()}/${config.appName}`, WSSConfig)
 
     ws.on('ping', () => { heartbeat(ws) })
 
