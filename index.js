@@ -2,7 +2,7 @@ const os = require('os')
 const WebSocket = require('ws')
 const Inspector = require('inspector-api')
 
-const heartbeat = (ws) => {
+const heartbeat = (ws, delay) => {
     clearTimeout(ws.pingTimeout)
 
     // Use `WebSocket#terminate()`, which immediately destroys the connection,
@@ -11,35 +11,48 @@ const heartbeat = (ws) => {
     // sends out pings plus a conservative assumption of the latency.
     ws.pingTimeout = setTimeout(() => {
         ws.terminate()
-    }, 30000 + 1000)
+    }, delay)
 }
 
-const connectToWSS = async (config, inspector) => {
+const connectToWSS = (config, inspector, destroyed, ws) => {
     const WSSConfig = {}
+    const delay = config.heartbeatDelay || 31000
     if (config.token) WSSConfig.headers = { token: config.token }
-    const ws = new WebSocket(`${config.serverUrl}/${os.hostname()}/${config.appName}`, WSSConfig)
+    ws = new WebSocket(`${config.serverUrl}/${os.hostname()}/${config.appName}`, WSSConfig)
 
-    ws.on('ping', () => { heartbeat(ws) })
+    const ping = () => { heartbeat(ws, delay) }
 
-    ws.on('open', () => {
-        console.info('Connected to WS server.')
-        heartbeat(ws)
-    })
+    ws.on('ping', ping)
+        .on('open', ping)
 
     ws.on('message', (msg) => {
         if (!events[msg]) return console.warn(`Event ${msg} not handled!\nYou can use the addEvent() method to attach an action to a specific event.`)
         events[msg](msg, inspector)
     })
 
-    ws.on('close', async () => {
+    ws.on('close', () => {
         ws.terminate()
-        await connectToWSS(config, inspector)
         clearTimeout(ws.pingTimeout)
+        if (!destroyed) connectToWSS(config, inspector, destroyed, ws)
     })
 
-    ws.on('error', async (err) => {
+    ws.on('error', (err) => {
+        // console.error(err)
         ws.terminate()
     })
+
+    return {
+        destroy: async () => {
+            if (inspector) await inspector.destroy()
+            destroyed = true
+            clearTimeout(ws.pingTimeout)
+            ws.terminate()
+        },
+        ws: ws,
+        addEvent: (event, fn) => {
+            events[event] = fn
+        }
+    }
 }
 
 const events = {
@@ -55,25 +68,24 @@ const events = {
 
 module.exports = (config = {}) => {
     if (!config.appName) {
-        console.error('Can\'t start node health agent, no app name provided!')
-        return
+        const msg = 'Can\'t start node health agent, no app name provided!'
+        console.error(msg)
+        return new Error(msg)
     }
     if (!config.serverUrl) {
-        console.error('Can\'t start node health agent, no server url!')
-        return
+        const msg = 'Can\'t start node health agent, no server url!'
+        console.error(msg)
+        return new Error(msg)
     }
 
+    const destroyed = false
     let inspector
+    let ws
+
     if (config.inspector) {
         inspector = new Inspector(config.inspector)
         inspector.profiler.enable()
     }
 
-    connectToWSS(config, inspector)
-
-    return {
-        addEvent: (event, fn) => {
-            events[event] = fn
-        }
-    }
+    return connectToWSS(config, inspector, destroyed, ws)
 }
