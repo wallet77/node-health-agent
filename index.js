@@ -14,11 +14,12 @@ const heartbeat = (ws, delay) => {
     }, delay)
 }
 
-const connectToWSS = (config, inspector, destroyed, ws) => {
+const connectToWSS = (config, inspector, destroyed) => {
     const WSSConfig = {}
     const delay = config.heartbeatDelay || 31000
+    const autoReconnectDelay = config.autoReconnectDelay || 1000
     if (config.token) WSSConfig.headers = { token: config.token }
-    ws = new WebSocket(`${config.serverUrl}/${os.hostname()}/${config.appName}`, WSSConfig)
+    let ws = new WebSocket(`${config.serverUrl}/${os.hostname()}/${config.appName}`, WSSConfig)
 
     const ping = () => { heartbeat(ws, delay) }
 
@@ -33,18 +34,27 @@ const connectToWSS = (config, inspector, destroyed, ws) => {
     ws.on('close', () => {
         ws.terminate()
         clearTimeout(ws.pingTimeout)
-        if (!destroyed) connectToWSS(config, inspector, destroyed, ws)
+        if (!destroyed) {
+            setTimeout(() => {
+                ws.removeAllListeners()
+                ws = (connectToWSS(config, inspector, destroyed)).ws
+            }, autoReconnectDelay)
+        }
     })
 
     ws.on('error', (err) => {
-        // console.error(err)
+        if (err.code === 'ECONNREFUSED') {
+            ws.removeAllListeners()
+            ws = (connectToWSS(config, inspector, destroyed)).ws
+        }
+
         ws.terminate()
     })
 
     return {
         destroy: async () => {
-            if (inspector) await inspector.destroy()
             destroyed = true
+            if (inspector) await inspector.destroy()
             clearTimeout(ws.pingTimeout)
             ws.terminate()
         },
@@ -80,12 +90,11 @@ module.exports = (config = {}) => {
 
     const destroyed = false
     let inspector
-    let ws
 
     if (config.inspector) {
         inspector = new Inspector(config.inspector)
         inspector.profiler.enable()
     }
 
-    return connectToWSS(config, inspector, destroyed, ws)
+    return connectToWSS(config, inspector, destroyed)
 }

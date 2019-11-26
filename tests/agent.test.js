@@ -21,9 +21,7 @@ describe('Agent', () => {
 
         afterEach(async (done) => {
             await agent.destroy()
-            wss.close(() => {
-                done()
-            })
+            wss.close(done)
         })
 
         it('should start even without inspector', (done) => {
@@ -155,6 +153,7 @@ describe('Agent', () => {
             })
         })
 
+        // test reconnection after one hearbeat
         it('should start and terminate after one heartbeat', (done) => {
             wss = new WebSocket.Server({
                 port: 3000
@@ -164,18 +163,54 @@ describe('Agent', () => {
                 agent = require('../index')({
                     appName: 'test',
                     serverUrl: 'ws://localhost:3000',
-                    heartbeatDelay: 100
+                    heartbeatDelay: 100,
+                    autoReconnectDelay: 100
+                })
+
+                agent.ws.on('open', () => {
+                    expect(typeof agent.addEvent).toEqual('function')
+                })
+
+                // wait for a ping
+                const timer = setTimeout(() => {
+                    clearTimeout(timer)
+                    done()
+                }, 300)
+            })
+        })
+
+        // test reconnection when server is down
+        it('should start and and try to reconnect', (done) => {
+            wss = new WebSocket.Server({
+                port: 3000
+            })
+
+            wss.on('listening', () => {
+                agent = require('../index')({
+                    appName: 'test',
+                    serverUrl: 'ws://localhost:3000',
+                    autoReconnectDelay: 100
                 })
 
                 agent.ws.on('open', () => {
                     expect(typeof agent.addEvent).toEqual('function')
 
-                    // wait for a ping
-                    const timer = setTimeout(() => {
-                        clearTimeout(timer)
-                        done()
-                    }, 500)
+                    wss.close(() => {
+                        // wait more than autoReconnectDelay to be sure to generate an error
+                        const timer = setTimeout(() => {
+                            clearTimeout(timer)
+                            // recreate server
+                            wss = new WebSocket.Server({
+                                port: 3000
+                            })
+                        }, 120)
+                    })
                 })
+
+                const timer = setTimeout(() => {
+                    clearTimeout(timer)
+                    done()
+                }, 300)
             })
         })
     })
