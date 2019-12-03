@@ -27,8 +27,15 @@ const connectToWSS = (config, inspector, destroyed) => {
         .on('open', ping)
 
     ws.on('message', (msg) => {
-        if (!events[msg]) return console.warn(`Event ${msg} not handled!\nYou can use the addEvent() method to attach an action to a specific event.`)
-        events[msg](msg, inspector)
+        let eventName
+        try {
+            msg = JSON.parse(msg)
+            eventName = msg.name
+        } catch (e) {
+            eventName = msg
+        }
+        if (!events[eventName]) return console.warn(`Event ${eventName} not handled!\nYou can use the addEvent() method to attach an action to a specific event.`)
+        events[eventName](msg, inspector)
     })
 
     ws.on('close', () => {

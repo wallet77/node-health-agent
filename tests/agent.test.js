@@ -213,5 +213,32 @@ describe('Agent', () => {
                 }, 300)
             })
         })
+
+        it('should handle event as JSON object', (done) => {
+            wss = new WebSocket.Server({
+                port: 3000
+            })
+
+            wss.on('listening', () => {
+                agent = require('../index')({
+                    appName: 'test',
+                    serverUrl: 'ws://localhost:3000'
+                })
+
+                agent.addEvent('custom_event_json', (event) => {
+                    expect(event.name).toEqual('custom_event_json')
+                    expect(event.data.key).toEqual('value')
+                    done()
+                })
+
+                agent.ws.on('open', () => {
+                    expect(typeof agent.addEvent).toEqual('function')
+
+                    wss.clients.forEach(ws => {
+                        ws.send('{"name":"custom_event_json","data":{"key":"value"}}')
+                    })
+                })
+            })
+        })
     })
 })
