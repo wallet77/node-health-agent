@@ -68,18 +68,37 @@ const connectToWSS = (config, inspector, destroyed) => {
         ws: ws,
         addEvent: (event, fn) => {
             events[event] = fn
-        }
+        },
+        _events: events
     }
 }
+
+let isCPUProfilingRunning = false
 
 const events = {
     cpu_profiling_start: (message, inspector) => {
         if (!inspector) return console.warn('Not inspector configuration found!')
+        isCPUProfilingRunning = true
         inspector.profiler.start()
+
+        const duration = (typeof message === 'object' && Number.isInteger(message.data.duration)) ? message.data.duration : 10000
+
+        setTimeout(() => {
+            if (isCPUProfilingRunning) events.cpu_profiling_stop(message, inspector)
+        }, duration)
     },
     cpu_profiling_stop: (message, inspector) => {
-        if (!inspector) return console.warn('Not inspector configuration found!')
+        if (!inspector) {
+            console.warn('Not inspector configuration found!')
+            return 1
+        }
+        if (!isCPUProfilingRunning) {
+            console.warn('No CPU profiling is running!')
+            return 1
+        }
         inspector.profiler.stop()
+        isCPUProfilingRunning = false
+        return 0
     }
 }
 
