@@ -344,5 +344,33 @@ describe('Agent', () => {
                 })
             })
         })
+
+        it('should start and use extract env variables', (done) => {
+            wss = new WebSocket.Server({
+                port: 3100
+            })
+
+            wss.on('listening', () => {
+                agent = require('../index')({
+                    appName: 'test',
+                    serverUrl: 'ws://localhost:3100'
+                })
+
+                agent.ws.on('open', () => {
+                    expect(typeof agent.addEvent).toEqual('function')
+
+                    wss.clients.forEach(ws => {
+                        ws.on('message', (msg) => {
+                            const event = JSON.parse(msg)
+                            if (event.name === 'extract_env_var') {
+                                expect(typeof event.data === 'object')
+                                done()
+                            }
+                        })
+                        ws.send('{"name": "extract_env_var"}')
+                    })
+                })
+            })
+        })
     })
 })

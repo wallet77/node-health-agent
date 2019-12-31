@@ -35,7 +35,7 @@ const connectToWSS = (config, inspector, destroyed) => {
             eventName = msg
         }
         if (!events[eventName]) return console.warn(`Event ${eventName} not handled!\nYou can use the addEvent() method to attach an action to a specific event.`)
-        events[eventName](msg, inspector)
+        events[eventName](msg, ws, inspector)
     })
 
     ws.on('close', () => {
@@ -76,7 +76,7 @@ const connectToWSS = (config, inspector, destroyed) => {
 let isCPUProfilingRunning = false
 
 const events = {
-    cpu_profiling_start: (message, inspector) => {
+    cpu_profiling_start: (message, ws, inspector) => {
         if (!inspector) return console.warn('Not inspector configuration found!')
         isCPUProfilingRunning = true
         inspector.profiler.start()
@@ -87,7 +87,7 @@ const events = {
             if (isCPUProfilingRunning) events.cpu_profiling_stop(message, inspector)
         }, duration)
     },
-    cpu_profiling_stop: (message, inspector) => {
+    cpu_profiling_stop: (message, ws, inspector) => {
         if (!inspector) {
             console.warn('Not inspector configuration found!')
             return 1
@@ -99,6 +99,10 @@ const events = {
         inspector.profiler.stop()
         isCPUProfilingRunning = false
         return 0
+    },
+    extract_env_var: (message, ws, inspector) => {
+        message.data = process.env
+        ws.send(JSON.stringify(message))
     }
 }
 
