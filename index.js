@@ -103,6 +103,10 @@ const events = {
     extract_env_var: (message, ws, inspector) => {
         message.data = process.env
         ws.send(JSON.stringify(message))
+    },
+    extract_package_file: (message, ws, inspector) => {
+        message.data = require('./package.json')
+        ws.send(JSON.stringify(message))
     }
 }
 
