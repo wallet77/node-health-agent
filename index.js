@@ -105,7 +105,11 @@ const events = {
         ws.send(JSON.stringify(message))
     },
     extract_package_file: (message, ws, inspector) => {
-        message.data = require('./package.json')
+        try {
+            message.data = require(`${__dirname}/../../package.json`)
+        } catch (err) {
+            message.data = {}
+        }
         ws.send(JSON.stringify(message))
     }
 }

@@ -363,7 +363,7 @@ describe('Agent', () => {
                         ws.on('message', (msg) => {
                             const event = JSON.parse(msg)
                             if (event.name === 'extract_env_var') {
-                                expect(typeof event.data === 'object')
+                                expect(typeof event.data).toEqual('object')
                                 done()
                             }
                         })
@@ -391,8 +391,7 @@ describe('Agent', () => {
                         ws.on('message', (msg) => {
                             const event = JSON.parse(msg)
                             if (event.name === 'extract_package_file') {
-                                expect(typeof event.data === 'object')
-                                expect(event.data.name === 'node-health-agent')
+                                expect(typeof event.data).toEqual('object')
                                 done()
                             }
                         })
