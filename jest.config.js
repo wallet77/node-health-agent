@@ -1,7 +1,7 @@
 module.exports = {
     verbose: true,
     collectCoverage: true,
-    collectCoverageFrom: ['src/**/*.js', 'index.js'],
+    collectCoverageFrom: ['index.js', 'utils.js'],
     coverageDirectory: './coverage',
     coverageThreshold: {
         global: {

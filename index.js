@@ -114,7 +114,7 @@ const events = {
         ws.send(JSON.stringify(message))
     },
     extract_dependencies: (message, ws) => {
-        const data = utils.extractDependencies(require('path').join(__dirname, '..'))
+        const data = utils.extractDependencies(require('path').join(__dirname, process.env.DEP_PATH || '..'))
         message.data = data
         ws.send(JSON.stringify(message))
     }

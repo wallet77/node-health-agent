@@ -400,5 +400,66 @@ describe('Agent', () => {
                 })
             })
         })
+
+        it('should start and use extract dependencies but failed', (done) => {
+            wss = new WebSocket.Server({
+                port: 3100
+            })
+
+            wss.on('listening', () => {
+                agent = require('../index')({
+                    appName: 'test',
+                    serverUrl: 'ws://localhost:3100'
+                })
+
+                agent.ws.on('open', () => {
+                    expect(typeof agent.addEvent).toEqual('function')
+
+                    wss.clients.forEach(ws => {
+                        ws.on('message', (msg) => {
+                            const event = JSON.parse(msg)
+                            if (event.name === 'extract_dependencies') {
+                                expect(typeof event.data).toEqual('object')
+                                expect(Object.keys(event.data).length === 0)
+                                done()
+                            }
+                        })
+                        ws.send('{"name": "extract_dependencies"}')
+                    })
+                })
+            })
+        })
+
+        it('should start and use extract dependencies', (done) => {
+            wss = new WebSocket.Server({
+                port: 3100
+            })
+
+            process.env.DEP_PATH = '/tests/node_modules_folder_example'
+
+            wss.on('listening', () => {
+                agent = require('../index')({
+                    appName: 'test',
+                    serverUrl: 'ws://localhost:3100'
+                })
+
+                agent.ws.on('open', () => {
+                    expect(typeof agent.addEvent).toEqual('function')
+
+                    wss.clients.forEach(ws => {
+                        ws.on('message', (msg) => {
+                            const event = JSON.parse(msg)
+                            if (event.name === 'extract_dependencies') {
+                                expect(typeof event.data).toEqual('object')
+                                expect(event.data.module1).toEqual('1.1.0')
+                                expect(event.data['@toto/module2']).toEqual('1.0.0')
+                                done()
+                            }
+                        })
+                        ws.send('{"name": "extract_dependencies"}')
+                    })
+                })
+            })
+        })
     })
 })

@@ -17,11 +17,10 @@ class Utils {
                 const version = json.version
                 packages[name] = version
             })
-            return packages
         } catch (err) {
-            console.log(err)
             return packages
         }
+        return packages
     }
 }
 
