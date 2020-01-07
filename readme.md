@@ -51,12 +51,24 @@ agent.addEvent('myEvent', (event) => {
 })
 ```
 
+### Add a custom event and send data to server
+```javascript
+agent.addEvent('myEvent', (event, ws) => {
+  const data = ... // get data in any way
+  event.data = data
+  ws.send(JSON.stringify(event))
+})
+```
+
 # List of built-in events
 
 | Event                        | description                                |
 |:----------------------------:|:------------------------------------------:|
 | `cpu_profiling_start`        | Start a CPU profiling                      |
 | `cpu_profiling_stop`         | Stop a CPU profiling                       |
+| `extract_env_var`            | Extract environment variables              |
+| `extract_package_file`       | Extract package.json file content          |
+| `extract_dependencies`       | Extract the full dependencies tree         |
 
 # Test
 

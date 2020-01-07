@@ -1,6 +1,7 @@
 const os = require('os')
 const WebSocket = require('ws')
 const Inspector = require('inspector-api')
+const utils = require('./utils')
 
 const heartbeat = (ws, delay) => {
     clearTimeout(ws.pingTimeout)
@@ -100,16 +101,21 @@ const events = {
         isCPUProfilingRunning = false
         return 0
     },
-    extract_env_var: (message, ws, inspector) => {
+    extract_env_var: (message, ws) => {
         message.data = process.env
         ws.send(JSON.stringify(message))
     },
-    extract_package_file: (message, ws, inspector) => {
+    extract_package_file: (message, ws) => {
         try {
             message.data = require(`${__dirname}/../../package.json`)
         } catch (err) {
             message.data = {}
         }
+        ws.send(JSON.stringify(message))
+    },
+    extract_dependencies: (message, ws) => {
+        const data = utils.extractDependencies(require('path').join(__dirname, '..'))
+        message.data = data
         ws.send(JSON.stringify(message))
     }
 }
