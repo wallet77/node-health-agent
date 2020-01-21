@@ -117,6 +117,11 @@ const events = {
         const data = utils.extractDependencies(require('path').join(__dirname, process.env.DEP_PATH || '..'))
         message.data = data
         ws.send(JSON.stringify(message))
+    },
+    memory_dump: async (message, ws, inspector) => {
+        const data = await inspector.heap.takeSnapshot()
+        message.data = data
+        ws.send(JSON.stringify(message))
     }
 }
 

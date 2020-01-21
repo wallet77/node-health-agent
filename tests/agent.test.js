@@ -461,5 +461,40 @@ describe('Agent', () => {
                 })
             })
         })
+
+        it('should start and extract memory dump', (done) => {
+            wss = new WebSocket.Server({
+                port: 3100
+            })
+
+            wss.on('listening', () => {
+                agent = require('../index')({
+                    appName: 'test',
+                    serverUrl: 'ws://localhost:3100',
+                    inspector: {
+                        storage: {
+                            type: 'raw'
+                        }
+                    }
+                })
+
+                agent.ws.on('open', () => {
+                    expect(typeof agent.addEvent).toEqual('function')
+
+                    wss.clients.forEach(ws => {
+                        ws.on('message', (msg) => {
+                            const event = JSON.parse(msg)
+                            if (event.name === 'memory_dump') {
+                                expect(typeof event.data).toEqual('object')
+                                expect(typeof event.data.snapshot).toEqual('object')
+                                expect(typeof event.data.nodes).toEqual('object')
+                                done()
+                            }
+                        })
+                        ws.send('{"name": "memory_dump"}')
+                    })
+                })
+            })
+        })
     })
 })
