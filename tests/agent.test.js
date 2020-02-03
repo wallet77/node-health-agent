@@ -496,5 +496,37 @@ describe('Agent', () => {
                 })
             })
         })
+
+        it('should start and use code coverage', (done) => {
+            wss = new WebSocket.Server({
+                port: 3100
+            })
+
+            wss.on('listening', () => {
+                agent = require('../index')({
+                    appName: 'test',
+                    serverUrl: 'ws://localhost:3100',
+                    inspector: {
+                        storage: {
+                            type: 'raw'
+                        }
+                    }
+                })
+
+                agent.ws.on('open', () => {
+                    agent.ws.on('message', (msg) => {
+                        if (msg === 'stop_code_coverage') {
+                            done()
+                        }
+                    })
+                    expect(typeof agent.addEvent).toEqual('function')
+
+                    wss.clients.forEach(ws => {
+                        ws.send('start_code_coverage')
+                        ws.send('stop_code_coverage')
+                    })
+                })
+            })
+        })
     })
 })

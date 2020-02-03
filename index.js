@@ -88,7 +88,7 @@ const events = {
             if (isCPUProfilingRunning) events.cpu_profiling_stop(message, inspector)
         }, duration)
     },
-    cpu_profiling_stop: (message, ws, inspector) => {
+    cpu_profiling_stop: async (message, ws, inspector) => {
         if (!inspector) {
             console.warn('Not inspector configuration found!')
             return 1
@@ -97,8 +97,10 @@ const events = {
             console.warn('No CPU profiling is running!')
             return 1
         }
-        inspector.profiler.stop()
+        const data = await inspector.profiler.stop()
         isCPUProfilingRunning = false
+        message.data = data
+        ws.send(JSON.stringify(message))
         return 0
     },
     extract_env_var: (message, ws) => {
@@ -120,6 +122,15 @@ const events = {
     },
     memory_dump: async (message, ws, inspector) => {
         const data = await inspector.heap.takeSnapshot()
+        message.data = data
+        ws.send(JSON.stringify(message))
+    },
+    start_code_coverage: async (message, ws, inspector) => {
+        await inspector.profiler.startPreciseCoverage()
+    },
+    stop_code_coverage: async (message, ws, inspector) => {
+        const data = await inspector.profiler.takePreciseCoverage()
+        await inspector.profiler.stopPreciseCoverage()
         message.data = data
         ws.send(JSON.stringify(message))
     }
