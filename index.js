@@ -74,34 +74,45 @@ const connectToWSS = (config, inspector, destroyed) => {
     }
 }
 
-let isCPUProfilingRunning = false
+const isRunning = {
+    isCPUProfilingRunning: false,
+    isMemorySamplingRunning: false
+}
+
+const startFunction = function (inspector, message, runningName, profilerName, startFn, stopEventName) {
+    if (!inspector) return console.warn('No inspector configuration found!')
+    isRunning[runningName] = true
+    inspector[profilerName][startFn]()
+
+    const duration = (typeof message === 'object' && message.config && Number.isInteger(message.config.duration)) ? message.config.duration : 10000
+
+    setTimeout(() => {
+        if (isRunning[runningName]) events[stopEventName](message, inspector)
+    }, duration)
+}
+
+const stopFunction = async function (inspector, message, ws, runningName, profilerName, stopFn, action) {
+    if (!inspector) {
+        console.warn('No inspector configuration found!')
+        return 1
+    }
+    if (!isRunning[runningName]) {
+        console.warn(`No ${action} is running!`)
+        return 1
+    }
+    const data = await inspector[profilerName][stopFn]()
+    isRunning[runningName] = false
+    message.data = data
+    ws.send(JSON.stringify(message))
+    return 0
+}
 
 const events = {
     cpu_profiling_start: (message, ws, inspector) => {
-        if (!inspector) return console.warn('Not inspector configuration found!')
-        isCPUProfilingRunning = true
-        inspector.profiler.start()
-
-        const duration = (typeof message === 'object' && message.config && Number.isInteger(message.config.duration)) ? message.config.duration : 10000
-
-        setTimeout(() => {
-            if (isCPUProfilingRunning) events.cpu_profiling_stop(message, inspector)
-        }, duration)
+        return startFunction(inspector, message, 'isCPUProfilingRunning', 'profiler', 'start', 'cpu_profiling_stop')
     },
     cpu_profiling_stop: async (message, ws, inspector) => {
-        if (!inspector) {
-            console.warn('Not inspector configuration found!')
-            return 1
-        }
-        if (!isCPUProfilingRunning) {
-            console.warn('No CPU profiling is running!')
-            return 1
-        }
-        const data = await inspector.profiler.stop()
-        isCPUProfilingRunning = false
-        message.data = data
-        ws.send(JSON.stringify(message))
-        return 0
+        return stopFunction(inspector, message, ws, 'isCPUProfilingRunning', 'profiler', 'stop', 'CPU profiling')
     },
     extract_env_var: (message, ws) => {
         message.data = process.env
@@ -124,6 +135,12 @@ const events = {
         const data = await inspector.heap.takeSnapshot()
         message.data = data
         ws.send(JSON.stringify(message))
+    },
+    memory_sampling_start: (message, ws, inspector) => {
+        return startFunction(inspector, message, 'isMemorySamplingRunning', 'heap', 'startSampling', 'memory_sampling_stop')
+    },
+    memory_sampling_stop: async (message, ws, inspector) => {
+        return stopFunction(inspector, message, ws, 'isMemorySamplingRunning', 'heap', 'stopSampling', 'memory sampling')
     },
     code_coverage_start: async (message, ws, inspector) => {
         await inspector.profiler.startPreciseCoverage()
@@ -154,6 +171,7 @@ module.exports = (config = {}) => {
     if (config.inspector) {
         inspector = new Inspector(config.inspector)
         inspector.profiler.enable()
+        inspector.heap.enable()
     }
 
     return connectToWSS(config, inspector, destroyed)

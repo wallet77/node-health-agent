@@ -528,5 +528,45 @@ describe('Agent', () => {
                 })
             })
         })
+
+        it('should start and use memory sampling', (done) => {
+            wss = new WebSocket.Server({
+                port: 3100
+            })
+
+            wss.on('listening', () => {
+                agent = require('../index')({
+                    appName: 'test',
+                    serverUrl: 'ws://localhost:3100',
+                    inspector: {
+                        storage: {
+                            type: 'raw'
+                        }
+                    }
+                })
+
+                agent.ws.on('open', () => {
+                    agent.ws.on('message', (msg) => {
+                        if (msg === 'memory_sampling_stop') {
+                            done()
+                        }
+                    })
+                    expect(typeof agent.addEvent).toEqual('function')
+
+                    wss.clients.forEach(ws => {
+                        ws.on('message', (msg) => {
+                            const event = JSON.parse(msg)
+                            if (event.name === 'memory_sampling_stop') {
+                                expect(typeof event.data).toEqual('object')
+                                done()
+                            }
+                        })
+
+                        ws.send('memory_sampling_start')
+                        ws.send('memory_sampling_stop')
+                    })
+                })
+            })
+        })
     })
 })
