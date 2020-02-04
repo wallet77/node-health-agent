@@ -70,6 +70,8 @@ agent.addEvent('myEvent', (event, ws) => {
 | `extract_package_file`       | Extract package.json file content          |
 | `extract_dependencies`       | Extract the full dependencies tree         |
 | `memory_dump`                | Take a memory snapshot                     |
+| `memory_sampling_start`      | Start a memory sampling                    |
+| `memory_sampling_stop`       | Stop memory sampling                       |
 | `code_coverage_start`        | Start to collect code coverage data        |
 | `code_coverage_stop`         | Stop code coevrage and send data           |
 
