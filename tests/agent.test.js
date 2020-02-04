@@ -515,15 +515,15 @@ describe('Agent', () => {
 
                 agent.ws.on('open', () => {
                     agent.ws.on('message', (msg) => {
-                        if (msg === 'stop_code_coverage') {
+                        if (msg === 'code_coverage_stop') {
                             done()
                         }
                     })
                     expect(typeof agent.addEvent).toEqual('function')
 
                     wss.clients.forEach(ws => {
-                        ws.send('start_code_coverage')
-                        ws.send('stop_code_coverage')
+                        ws.send('code_coverage_start')
+                        ws.send('code_coverage_stop')
                     })
                 })
             })

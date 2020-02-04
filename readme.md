@@ -69,6 +69,9 @@ agent.addEvent('myEvent', (event, ws) => {
 | `extract_env_var`            | Extract environment variables              |
 | `extract_package_file`       | Extract package.json file content          |
 | `extract_dependencies`       | Extract the full dependencies tree         |
+| `memory_dump`                | Take a memory snapshot                     |
+| `code_coverage_start`        | Start to collect code coverage data        |
+| `code_coverage_stop`         | Stop code coevrage and send data           |
 
 # Test
 

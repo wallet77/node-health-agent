@@ -125,10 +125,10 @@ const events = {
         message.data = data
         ws.send(JSON.stringify(message))
     },
-    start_code_coverage: async (message, ws, inspector) => {
+    code_coverage_start: async (message, ws, inspector) => {
         await inspector.profiler.startPreciseCoverage()
     },
-    stop_code_coverage: async (message, ws, inspector) => {
+    code_coverage_stop: async (message, ws, inspector) => {
         const data = await inspector.profiler.takePreciseCoverage()
         await inspector.profiler.stopPreciseCoverage()
         message.data = data
