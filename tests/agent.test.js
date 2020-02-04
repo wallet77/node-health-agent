@@ -159,7 +159,7 @@ describe('Agent', () => {
                     }, 350)
 
                     wss.clients.forEach(ws => {
-                        ws.send('{"name":"cpu_profiling_start","data":{"duration":200}}')
+                        ws.send('{"name":"cpu_profiling_start","config":{"duration":200}}')
                     })
                 })
             })
@@ -199,7 +199,7 @@ describe('Agent', () => {
                     }, 400)
 
                     wss.clients.forEach(ws => {
-                        ws.send('{"name":"cpu_profiling_start","data":{"duration":200}}')
+                        ws.send('{"name":"cpu_profiling_start","config":{"duration":200}}')
                     })
                 })
             })
@@ -331,7 +331,7 @@ describe('Agent', () => {
 
                 agent.addEvent('custom_event_json', (event) => {
                     expect(event.name).toEqual('custom_event_json')
-                    expect(event.data.key).toEqual('value')
+                    expect(event.config.key).toEqual('value')
                     done()
                 })
 
@@ -339,7 +339,7 @@ describe('Agent', () => {
                     expect(typeof agent.addEvent).toEqual('function')
 
                     wss.clients.forEach(ws => {
-                        ws.send('{"name":"custom_event_json","data":{"key":"value"}}')
+                        ws.send('{"name":"custom_event_json","config":{"key":"value"}}')
                     })
                 })
             })

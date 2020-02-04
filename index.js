@@ -82,7 +82,7 @@ const events = {
         isCPUProfilingRunning = true
         inspector.profiler.start()
 
-        const duration = (typeof message === 'object' && Number.isInteger(message.data.duration)) ? message.data.duration : 10000
+        const duration = (typeof message === 'object' && message.config && Number.isInteger(message.config.duration)) ? message.config.duration : 10000
 
         setTimeout(() => {
             if (isCPUProfilingRunning) events.cpu_profiling_stop(message, inspector)
