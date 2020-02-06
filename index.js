@@ -25,7 +25,20 @@ const connectToWSS = (config, inspector, destroyed) => {
     const ping = () => { heartbeat(ws, delay) }
 
     ws.on('ping', ping)
-        .on('open', ping)
+        .on('open', () => {
+            ping()
+            ws.send(JSON.stringify({
+                type: 'upgrade',
+                appName: config.appName,
+                hostname: os.hostname(),
+                additionalInfo: {
+                    agentType: 'node',
+                    agentVersion: require(`${__dirname}/package.json`).version,
+                    nodeVersion: process.version,
+                    env: process.env.NODE_ENV
+                }
+            }))
+        })
 
     ws.on('message', (msg) => {
         let eventName

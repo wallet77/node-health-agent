@@ -568,5 +568,36 @@ describe('Agent', () => {
                 })
             })
         })
+
+        it('should send connection data', (done) => {
+            wss = new WebSocket.Server({
+                port: 3100
+            })
+
+            wss.on('listening', () => {
+                agent = require('../index')({
+                    appName: 'test',
+                    serverUrl: 'ws://localhost:3100'
+                })
+
+                agent.ws.on('open', () => {
+                    wss.clients.forEach(ws => {
+                        ws.on('message', (msg) => {
+                            const event = JSON.parse(msg)
+                            if (event.type === 'upgrade') {
+                                expect(event.appName).toEqual('test')
+                                expect(event.hostname).toEqual(require('os').hostname())
+                                expect(event.additionalInfo.agentType).toEqual('node')
+                                expect(event.additionalInfo.env).toEqual('test')
+                                expect(typeof event.additionalInfo.nodeVersion).toEqual('string')
+                                expect(typeof event.additionalInfo.agentVersion).toEqual('string')
+                                done()
+                            }
+                        })
+                    })
+                    expect(typeof agent.addEvent).toEqual('function')
+                })
+            })
+        })
     })
 })
