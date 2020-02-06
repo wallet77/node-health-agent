@@ -26,7 +26,6 @@ const connectToWSS = (config, inspector, destroyed) => {
 
     ws.on('ping', ping)
         .on('open', () => {
-            ping()
             ws.send(JSON.stringify({
                 type: 'upgrade',
                 appName: config.appName,
