@@ -273,13 +273,18 @@ describe('Agent', () => {
 
                 agent.ws.on('open', () => {
                     expect(typeof agent.addEvent).toEqual('function')
+                    wss.clients.forEach(ws => {
+                        ws.ping()
+                    })
                 })
 
                 // wait for a ping
-                const timer = setTimeout(() => {
-                    clearTimeout(timer)
-                    done()
-                }, 300)
+                agent.ws.on('ping', () => {
+                    // wait for the heartbeatDelay to expire
+                    agent.ws.onclose = () => {
+                        done()
+                    }
+                })
             })
         })
 
@@ -586,7 +591,8 @@ describe('Agent', () => {
                             const event = JSON.parse(msg)
                             if (event.type === 'upgrade') {
                                 expect(event.appName).toEqual('test')
-                                expect(event.hostname).toEqual(require('os').hostname())
+                                const hostname = event.hostname.split('_')[0]
+                                expect(hostname).toEqual(require('os').hostname())
                                 expect(event.additionalInfo.agentType).toEqual('node')
                                 expect(event.additionalInfo.env).toEqual('test')
                                 expect(typeof event.additionalInfo.nodeVersion).toEqual('string')

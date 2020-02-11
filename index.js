@@ -1,6 +1,7 @@
 const os = require('os')
 const WebSocket = require('ws')
 const Inspector = require('inspector-api')
+const { uuid } = require('uuidv4')
 const utils = require('./utils')
 
 const heartbeat = (ws, delay) => {
@@ -20,7 +21,8 @@ const connectToWSS = (config, inspector, destroyed) => {
     const delay = config.heartbeatDelay || 31000
     const autoReconnectDelay = config.autoReconnectDelay || 1000
     if (config.token) WSSConfig.headers = { token: config.token }
-    let ws = new WebSocket(`${config.serverUrl}/${os.hostname()}/${config.appName}`, WSSConfig)
+    const hostname = `${os.hostname()}_${uuid()}`
+    let ws = new WebSocket(`${config.serverUrl}/${hostname}/${config.appName}`, WSSConfig)
 
     const ping = () => { heartbeat(ws, delay) }
 
@@ -29,7 +31,7 @@ const connectToWSS = (config, inspector, destroyed) => {
             ws.send(JSON.stringify({
                 type: 'upgrade',
                 appName: config.appName,
-                hostname: os.hostname(),
+                hostname: hostname,
                 additionalInfo: {
                     agentType: 'node',
                     agentVersion: require(`${__dirname}/package.json`).version,
