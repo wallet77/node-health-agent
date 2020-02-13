@@ -75,6 +75,15 @@ agent.addEvent('myEvent', (event, ws) => {
 | `code_coverage_start`        | Start to collect code coverage data        |
 | `code_coverage_stop`         | Stop code coevrage and send data           |
 
+# Debug
+
+Node-health's agent use debug module in order not to pollute your logs.
+If you want to see all agent output just use DEBUG environment variable:
+
+```console
+DEBUG=node-health-agent* node myApp.js
+```
+
 # Test
 
 ```console

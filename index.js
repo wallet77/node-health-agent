@@ -1,4 +1,8 @@
 const os = require('os')
+const debug = require('debug')
+const error = debug('node-health-agent:error')
+const warn = debug('node-health-agent:warn')
+warn.warn = console.warn.bind(console)
 const WebSocket = require('ws')
 const Inspector = require('inspector-api')
 const { uuid } = require('uuidv4')
@@ -49,7 +53,7 @@ const connectToWSS = (config, inspector, destroyed) => {
         } catch (e) {
             eventName = msg
         }
-        if (!events[eventName]) return console.warn(`Event ${eventName} not handled!\nYou can use the addEvent() method to attach an action to a specific event.`)
+        if (!events[eventName]) return warn(`Event ${eventName} not handled!\nYou can use the addEvent() method to attach an action to a specific event.`)
         events[eventName](msg, ws, inspector)
     })
 
@@ -71,6 +75,7 @@ const connectToWSS = (config, inspector, destroyed) => {
         }
 
         ws.terminate()
+        error(err)
     })
 
     return {
@@ -94,7 +99,7 @@ const isRunning = {
 }
 
 const startFunction = function (inspector, message, runningName, profilerName, startFn, stopEventName) {
-    if (!inspector) return console.warn('No inspector configuration found!')
+    if (!inspector) return warn('No inspector configuration found!')
     isRunning[runningName] = true
     inspector[profilerName][startFn]()
 
@@ -107,11 +112,11 @@ const startFunction = function (inspector, message, runningName, profilerName, s
 
 const stopFunction = async function (inspector, message, ws, runningName, profilerName, stopFn, action) {
     if (!inspector) {
-        console.warn('No inspector configuration found!')
+        warn('No inspector configuration found!')
         return 1
     }
     if (!isRunning[runningName]) {
-        console.warn(`No ${action} is running!`)
+        warn(`No ${action} is running!`)
         return 1
     }
     const data = await inspector[profilerName][stopFn]()
@@ -137,6 +142,7 @@ const events = {
             message.data = require(`${__dirname}/../../package.json`)
         } catch (err) {
             message.data = {}
+            error(err)
         }
         ws.send(JSON.stringify(message))
     },
@@ -170,12 +176,12 @@ const events = {
 module.exports = (config = {}) => {
     if (!config.appName) {
         const msg = 'Can\'t start node health agent, no app name provided!'
-        console.error(msg)
+        error(msg)
         return new Error(msg)
     }
     if (!config.serverUrl) {
         const msg = 'Can\'t start node health agent, no server url!'
-        console.error(msg)
+        error(msg)
         return new Error(msg)
     }
 

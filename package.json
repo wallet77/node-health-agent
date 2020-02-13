@@ -1,6 +1,6 @@
 {
   "name": "node-health-agent",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -15,6 +15,7 @@
   "author": "wallet77",
   "license": "MIT",
   "dependencies": {
+    "debug": "4.1.1",
     "inspector-api": "1.0.3",
     "uuidv4": "6.0.2",
     "ws": "7.2.1"
