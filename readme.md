@@ -74,6 +74,7 @@ agent.addEvent('myEvent', (event, ws) => {
 | `memory_sampling_stop`       | Stop memory sampling                       |
 | `code_coverage_start`        | Start to collect code coverage data        |
 | `code_coverage_stop`         | Stop code coevrage and send data           |
+| `diagnosis_report`           | Run Node.js diagnosis report               |
 
 # Debug
 
