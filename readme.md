@@ -75,6 +75,7 @@ agent.addEvent('myEvent', (event, ws) => {
 | `code_coverage_start`        | Start to collect code coverage data        |
 | `code_coverage_stop`         | Stop code coevrage and send data           |
 | `diagnosis_report`           | Run Node.js diagnosis report               |
+| `memory_cpu_usage`           | Export CPU and memory info                 |
 
 # Debug
 
