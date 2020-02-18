@@ -176,6 +176,15 @@ const events = {
         if (process.report && process.report.getReport) data = process.report.getReport()
         message.data = data
         ws.send(JSON.stringify(message))
+    },
+    memory_cpu_usage: (message, ws) => {
+        message.data = {
+            totalmem: os.totalmem(),
+            freemem: os.freemem(),
+            cpus: os.cpus(),
+            memoryUsage: process.memoryUsage()
+        }
+        ws.send(JSON.stringify(message))
     }
 }
 
