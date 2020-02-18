@@ -170,6 +170,12 @@ const events = {
         await inspector.profiler.stopPreciseCoverage()
         message.data = data
         ws.send(JSON.stringify(message))
+    },
+    diagnosis_report: (message, ws) => {
+        let data = { response: 'not supported' }
+        if (process.report && process.report.getReport) data = process.report.getReport()
+        message.data = data
+        ws.send(JSON.stringify(message))
     }
 }
 
