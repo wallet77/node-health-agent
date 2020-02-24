@@ -194,13 +194,43 @@ describe('Agent', () => {
 
                     setTimeout(async () => {
                         expect(mockCallback.mock.calls.length).toEqual(1)
-                        expect(await mockCallback.mock.results[0].value).toEqual(0)
+                        const res = await mockCallback.mock.results[0].value
+                        expect(typeof res).toEqual('object')
                         done()
                     }, 400)
 
                     wss.clients.forEach(ws => {
                         ws.send('{"name":"cpu_profiling_start","config":{"duration":200}}')
                     })
+                })
+            })
+        })
+
+        it('should start and use CPU profiling with custom max duration but stop manually before the expiration', (done) => {
+            wss = new WebSocket.Server({
+                port: 3100
+            })
+
+            wss.on('listening', () => {
+                agent = require('../index')({
+                    appName: 'test',
+                    serverUrl: 'ws://localhost:3100',
+                    inspector: {
+                        storage: {
+                            type: 'raw'
+                        }
+                    }
+                })
+
+                agent.ws.on('open', () => {
+                    agent._events.cpu_profiling_start({}, agent.ws, agent.inspector)
+
+                    setTimeout(async () => {
+                        const profile = await agent._events.cpu_profiling_stop({}, agent.ws, agent.inspector)
+                        expect(typeof profile).toEqual('object')
+                        expect(Array.isArray(profile.nodes)).toEqual(true)
+                        done()
+                    }, 400)
                 })
             })
         })

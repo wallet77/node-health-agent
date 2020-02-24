@@ -60,6 +60,15 @@ agent.addEvent('myEvent', (event, ws) => {
 })
 ```
 
+### Trigger event manually
+```javascript
+agent._events.cpu_profiling_start({}, agent.ws, agent.inspector)
+// ...
+// a few moment later
+const profile = await agent._events.cpu_profiling_stop({}, agent.ws, agent.inspector)
+```
+
+
 # List of built-in events
 
 | Event                        | description                                |

@@ -79,6 +79,7 @@ const connectToWSS = (config, inspector, destroyed) => {
     })
 
     return {
+        inspector: inspector,
         destroy: async () => {
             destroyed = true
             if (inspector) await inspector.destroy()
@@ -123,7 +124,7 @@ const stopFunction = async function (inspector, message, ws, runningName, profil
     isRunning[runningName] = false
     message.data = data
     ws.send(JSON.stringify(message))
-    return 0
+    return data
 }
 
 const events = {
