@@ -139,17 +139,16 @@ const events = {
         ws.send(JSON.stringify(message))
     },
     extract_package_file: (message, ws) => {
-        try {
-            message.data = require(`${__dirname}/../../package.json`)
-        } catch (err) {
-            message.data = {}
-            error(err)
-        }
+        message.data = utils.extractPackageFile()
         ws.send(JSON.stringify(message))
     },
     extract_dependencies: (message, ws) => {
+        const packageFile = utils.extractPackageFile()
         const data = utils.extractDependencies(require('path').join(__dirname, process.env.DEP_PATH || '..'))
-        message.data = data
+        message.data = {
+            dependencies: packageFile.dependencies,
+            fullDependencies: data
+        }
         ws.send(JSON.stringify(message))
     },
     memory_dump: async (message, ws, inspector) => {

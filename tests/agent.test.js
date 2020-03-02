@@ -486,8 +486,10 @@ describe('Agent', () => {
                             const event = JSON.parse(msg)
                             if (event.name === 'extract_dependencies') {
                                 expect(typeof event.data).toEqual('object')
-                                expect(event.data.module1).toEqual('1.1.0')
-                                expect(event.data['@toto/module2']).toEqual('1.0.0')
+                                expect(event.data.fullDependencies.module1.version).toEqual('1.1.0')
+                                expect(event.data.fullDependencies['@toto/module2'].version).toEqual('1.0.0')
+                                expect(event.data.fullDependencies.module1.dependencies.module3).toEqual('x.y.z')
+                                expect(event.data.fullDependencies.module4.version).toEqual('1.1.4')
                                 done()
                             }
                         })
