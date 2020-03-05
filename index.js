@@ -99,7 +99,7 @@ const isRunning = {
     isMemorySamplingRunning: false
 }
 
-const startFunction = function (inspector, message, runningName, profilerName, startFn, stopEventName) {
+const startFunction = function (inspector, message, runningName, profilerName, startFn, stopEventName, ws) {
     if (!inspector) return warn('No inspector configuration found!')
     isRunning[runningName] = true
     inspector[profilerName][startFn]()
@@ -107,7 +107,8 @@ const startFunction = function (inspector, message, runningName, profilerName, s
     const duration = (typeof message === 'object' && message.config && Number.isInteger(message.config.duration)) ? message.config.duration : 10000
 
     setTimeout(() => {
-        if (isRunning[runningName]) events[stopEventName](message, inspector)
+        message.name = stopEventName
+        if (isRunning[runningName]) events[stopEventName](message, ws, inspector)
     }, duration)
 }
 
@@ -129,7 +130,7 @@ const stopFunction = async function (inspector, message, ws, runningName, profil
 
 const events = {
     cpu_profiling_start: (message, ws, inspector) => {
-        return startFunction(inspector, message, 'isCPUProfilingRunning', 'profiler', 'start', 'cpu_profiling_stop')
+        return startFunction(inspector, message, 'isCPUProfilingRunning', 'profiler', 'start', 'cpu_profiling_stop', ws)
     },
     cpu_profiling_stop: async (message, ws, inspector) => {
         return stopFunction(inspector, message, ws, 'isCPUProfilingRunning', 'profiler', 'stop', 'CPU profiling')
@@ -157,7 +158,7 @@ const events = {
         ws.send(JSON.stringify(message))
     },
     memory_sampling_start: (message, ws, inspector) => {
-        return startFunction(inspector, message, 'isMemorySamplingRunning', 'heap', 'startSampling', 'memory_sampling_stop')
+        return startFunction(inspector, message, 'isMemorySamplingRunning', 'heap', 'startSampling', 'memory_sampling_stop', ws)
     },
     memory_sampling_stop: async (message, ws, inspector) => {
         return stopFunction(inspector, message, ws, 'isMemorySamplingRunning', 'heap', 'stopSampling', 'memory sampling')
