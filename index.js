@@ -164,13 +164,12 @@ const events = {
         return stopFunction(inspector, message, ws, 'isMemorySamplingRunning', 'heap', 'stopSampling', 'memory sampling')
     },
     code_coverage_start: async (message, ws, inspector) => {
-        await inspector.profiler.startPreciseCoverage()
+        return startFunction(inspector, message, 'isCoverageRunning', 'profiler', 'startPreciseCoverage', 'code_coverage_stop', ws)
     },
     code_coverage_stop: async (message, ws, inspector) => {
-        const data = await inspector.profiler.takePreciseCoverage()
+        const data = await stopFunction(inspector, message, ws, 'isCoverageRunning', 'profiler', 'takePreciseCoverage', 'code coverage')
         await inspector.profiler.stopPreciseCoverage()
-        message.data = data
-        ws.send(JSON.stringify(message))
+        return data
     },
     diagnosis_report: (message, ws) => {
         let data = { response: 'not supported' }
