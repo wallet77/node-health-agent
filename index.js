@@ -39,6 +39,7 @@ const connectToWSS = (config, inspector, destroyed) => {
                 additionalInfo: {
                     agentType: 'node',
                     agentVersion: require(`${__dirname}/package.json`).version,
+                    appVersion: utils.extractPackageFile().version,
                     nodeVersion: process.version,
                     env: process.env.NODE_ENV
                 }
