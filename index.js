@@ -27,6 +27,9 @@ const connectToWSS = (config, inspector, destroyed) => {
     if (config.token) WSSConfig.headers = { token: config.token }
     const hostname = `${os.hostname()}_${uuid()}`
     let ws = new WebSocket(`${config.serverUrl}/${hostname}/${config.appName}`, WSSConfig)
+    ws.nodeHealth = {
+        waitingQueue: []
+    }
 
     const ping = () => { heartbeat(ws, delay) }
 
@@ -44,6 +47,15 @@ const connectToWSS = (config, inspector, destroyed) => {
                     env: process.env.NODE_ENV
                 }
             }))
+
+            // send postponed events because WS wasn't ready
+            if(ws.nodeHealth.waitingQueue.length > 0) {
+                for (let i = 0; i < ws.nodeHealth.waitingQueue.length; i++) {
+                    ws.send(JSON.stringify(ws.nodeHealth.waitingQueue[i]))
+                }
+            }
+
+            ws.nodeHealth.waitingQueue = []
         })
 
     ws.on('message', (msg) => {
@@ -90,6 +102,21 @@ const connectToWSS = (config, inspector, destroyed) => {
         ws: ws,
         addEvent: (event, fn) => {
             events[event] = fn
+            const data = {
+                data: {
+                    event: event
+                },
+                hostname: hostname,
+                name: 'addEvent',
+                type: 'json'
+            }
+            // if WS is not connected
+            // set event in waiting queue
+            if (ws.readyState === 0) {
+                ws.nodeHealth.waitingQueue.push(data)
+                return
+            }
+            ws.send(JSON.stringify(data))
         },
         _events: events
     }

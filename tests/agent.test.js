@@ -261,7 +261,7 @@ describe('Agent', () => {
             })
         })
 
-        it('should start and use custom event', (done) => {
+        it('should start and use custom event (test waiting queue)', (done) => {
             wss = new WebSocket.Server({
                 port: 3100
             })
@@ -283,6 +283,32 @@ describe('Agent', () => {
                     wss.clients.forEach(ws => {
                         ws.send('custom_event')
                     })
+                })
+            })
+        })
+
+        it('should start and use custom event after WS is connected', (done) => {
+            wss = new WebSocket.Server({
+                port: 3100
+            })
+
+            wss.on('listening', async () => {
+                agent = require('../index')({
+                    appName: 'test',
+                    serverUrl: 'ws://localhost:3100',
+                    token: 'myToken'
+                })
+
+                while (agent.ws.readyState === 0) {
+                    await new Promise(resolve => setTimeout(resolve, 500))
+                }
+
+                agent.addEvent('custom_event', () => {
+                    done()
+                })
+
+                wss.clients.forEach(ws => {
+                    ws.send('custom_event')
                 })
             })
         })
