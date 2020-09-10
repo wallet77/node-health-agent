@@ -35,7 +35,7 @@ const connectToWSS = (config, inspector, destroyed) => {
 
     ws.on('ping', ping)
         .on('open', () => {
-            ws.send(JSON.stringify({
+            const upgrade = {
                 type: 'upgrade',
                 appName: config.appName,
                 hostname: hostname,
@@ -46,14 +46,14 @@ const connectToWSS = (config, inspector, destroyed) => {
                     nodeVersion: process.version,
                     env: process.env.NODE_ENV
                 }
-            }))
-
-            // send postponed events because WS wasn't ready
-            if(ws.nodeHealth.waitingQueue.length > 0) {
-                for (let i = 0; i < ws.nodeHealth.waitingQueue.length; i++) {
-                    ws.send(JSON.stringify(ws.nodeHealth.waitingQueue[i]))
-                }
             }
+
+            // checked postponed events because socket wasn't ready
+            if (ws.nodeHealth.waitingQueue.length > 0) {
+                upgrade.additionalInfo.customEvents = ws.nodeHealth.waitingQueue
+            }
+
+            ws.send(JSON.stringify(upgrade))
 
             ws.nodeHealth.waitingQueue = []
         })
@@ -102,6 +102,14 @@ const connectToWSS = (config, inspector, destroyed) => {
         ws: ws,
         addEvent: (event, fn) => {
             events[event] = fn
+            // if WS is not connected
+            // set event in waiting queue
+            if (ws.readyState === 0) {
+                ws.nodeHealth.waitingQueue.push(event)
+                return
+            }
+
+            // send event immediately
             const data = {
                 data: {
                     event: event
@@ -109,12 +117,6 @@ const connectToWSS = (config, inspector, destroyed) => {
                 hostname: hostname,
                 name: 'addEvent',
                 type: 'json'
-            }
-            // if WS is not connected
-            // set event in waiting queue
-            if (ws.readyState === 0) {
-                ws.nodeHealth.waitingQueue.push(data)
-                return
             }
             ws.send(JSON.stringify(data))
         },
