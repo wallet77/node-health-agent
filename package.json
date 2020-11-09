@@ -12,7 +12,16 @@
   "files": [
     "utils.js"
   ],
-  "keywords": ["nodehealth,", "agent", "debugging", "diagnosis", "diagnostic", "profiling", "memory", "dump"],
+  "keywords": [
+    "nodehealth,",
+    "agent",
+    "debugging",
+    "diagnosis",
+    "diagnostic",
+    "profiling",
+    "memory",
+    "dump"
+  ],
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/.bin/jest",
     "lint": "./node_modules/.bin/eslint ./",
@@ -25,20 +34,20 @@
   "author": "wallet77",
   "license": "MIT",
   "dependencies": {
-    "debug": "4.1.1",
+    "debug": "4.2.0",
     "inspector-api": "1.0.3",
-    "uuidv4": "6.2.0",
-    "ws": "7.3.1"
+    "uuid": "8.3.1",
+    "ws": "7.4.0"
   },
   "devDependencies": {
-    "eslint": "^7.5.0",
-    "eslint-config-standard": "^14.1.1",
-    "eslint-plugin-import": "^2.22.0",
+    "eslint": "^7.13.0",
+    "eslint-config-standard": "^16.0.1",
+    "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
-    "jest": "^26.2.1",
-    "jscpd": "^3.3.1"
+    "eslint-plugin-standard": "^4.0.2",
+    "jest": "^26.6.3",
+    "jscpd": "^3.3.19"
   },
   "jscpd": {
     "threshold": 0.1,

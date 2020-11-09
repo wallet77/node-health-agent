@@ -5,7 +5,7 @@ const warn = debug('node-health-agent:warn')
 warn.warn = console.warn.bind(console)
 const WebSocket = require('ws')
 const Inspector = require('inspector-api')
-const { uuid } = require('uuidv4')
+const { v4: uuid } = require('uuid')
 const utils = require('./utils')
 
 const heartbeat = (ws, delay) => {
