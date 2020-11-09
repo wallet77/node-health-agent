@@ -1,8 +1,18 @@
 {
   "name": "node-health-agent",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "",
+  "module": "./index.js",
+  "exports": {
+    "require": "./index.js",
+    "import": "./index.js"
+  },
   "main": "index.js",
+  "types": "./index.d.ts",
+  "files": [
+    "utils.js"
+  ],
+  "keywords": ["nodehealth,", "agent", "debugging", "diagnosis", "diagnostic", "profiling", "memory", "dump"],
   "scripts": {
     "test": "NODE_ENV=test ./node_modules/.bin/jest",
     "lint": "./node_modules/.bin/eslint ./",
@@ -10,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "gh-wallet77:wallet77/node-health-agent.git"
+    "url": "https://github.com/wallet77/node-health-agent"
   },
   "author": "wallet77",
   "license": "MIT",
