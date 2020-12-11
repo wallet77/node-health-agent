@@ -1,5 +1,6 @@
 const WebSocket = require('ws')
 const utils = require('./utils')
+const semver = require('semver')
 
 const cpuProfilingTest = (wss, agent, done, start = true) => {
     agent.ws.on('open', () => {
@@ -442,27 +443,29 @@ describe('Agent', () => {
             })
         })
 
-        it('should start and use code coverage', (done) => {
-            wss = utils.createWSS(3100)
+        if (semver.major(process.version) > 10) {
+            it('should start and use code coverage', (done) => {
+                wss = utils.createWSS(3100)
 
-            wss.on('listening', () => {
-                agent = utils.createAgent(3100)
+                wss.on('listening', () => {
+                    agent = utils.createAgent(3100)
 
-                agent.ws.on('open', () => {
-                    agent.ws.on('message', (msg) => {
-                        if (msg === 'code_coverage_stop') {
-                            done()
-                        }
-                    })
-                    expect(typeof agent.addEvent).toEqual('function')
+                    agent.ws.on('open', () => {
+                        agent.ws.on('message', (msg) => {
+                            if (msg === 'code_coverage_stop') {
+                                done()
+                            }
+                        })
+                        expect(typeof agent.addEvent).toEqual('function')
 
-                    wss.clients.forEach(ws => {
-                        ws.send('code_coverage_start')
-                        ws.send('code_coverage_stop')
+                        wss.clients.forEach(ws => {
+                            ws.send('code_coverage_start')
+                            ws.send('code_coverage_stop')
+                        })
                     })
                 })
             })
-        })
+        }
 
         it('should start and use memory sampling', (done) => {
             wss = utils.createWSS(3100)

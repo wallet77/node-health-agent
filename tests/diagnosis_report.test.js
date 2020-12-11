@@ -31,6 +31,7 @@ describe('Diagnosis report', () => {
     })
 
     it('should start and answer not supported feature', (done) => {
+        if (process.report && process.report.getReport) delete process.report
         wss = utils.createWSS(3101)
         checkResults(done, 'not supported')
     })
