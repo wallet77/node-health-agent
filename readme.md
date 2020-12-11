@@ -1,9 +1,19 @@
+# Node agent for Node health project.
+
 [![GitHub release](https://badge.fury.io/js/node-health-agent.svg)](https://github.com/wallet77/node-health-agent/releases/)
 [![GitHub license](https://img.shields.io/github/license/wallet77/node-health-agent)](https://github.com/wallet77/node-health-agent/blob/master/LICENSE)
+[![CI pipeline](https://github.com/wallet77/node-health-agent/workflows/Node.js%20CI/badge.svg)](https://github.com/wallet77/node-health-agent/actions?query=workflow%3A%22Node.js+CI%22)
+[![Code coverage](https://codecov.io/gh/wallet77/node-health-agent/branch/master/graph/badge.svg)](https://codecov.io/gh/wallet77/node-health-agent)
+[![Opened issues](https://img.shields.io/github/issues-raw/wallet77/node-health-agent)](https://github.com/wallet77/node-health-agent/issues)
+[![Opened PR](https://img.shields.io/github/issues-pr-raw/wallet77/node-health-agent)](https://github.com/wallet77/node-health-agent/pulls)
+[![DeepScan grade](https://deepscan.io/api/teams/12061/projects/15018/branches/292503/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=12061&pid=15018&bid=292503)
+
+![Dependencies](https://img.shields.io/david/wallet77/node-health-agent)
 
 # Purpose
 
-Node agent for Node health project.
+Agent to trigger events in your instances (even on production).
+It comes with a list of built-in events and allows to trigger custom actions.
 
 # Compatibility
 
