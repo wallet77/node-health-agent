@@ -1,6 +1,7 @@
 const fs = require('fs')
 const debug = require('debug')
 const error = debug('node-health-agent:error')
+const path = require('path')
 class Utils {
     extractDependencies (dir) {
         let packages = {}
@@ -36,7 +37,7 @@ class Utils {
     extractPackageFile () {
         let data = {}
         try {
-            data = require(`${__dirname}/../../package.json`)
+            data = require(path.join(__dirname, '/../../package.json'))
         } catch (err) {
             error(err)
         }

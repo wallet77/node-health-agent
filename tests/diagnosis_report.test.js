@@ -1,9 +1,29 @@
-const WebSocket = require('ws')
+const utils = require('./utils')
+
+let wss
+let agent
+
+const checkResults = function (done, value) {
+    wss.on('listening', () => {
+        agent = utils.createAgent(3101)
+
+        agent.ws.on('open', () => {
+            expect(typeof agent.addEvent).toEqual('function')
+            wss.clients.forEach(ws => {
+                ws.on('message', (msg) => {
+                    const event = JSON.parse(msg)
+                    if (event.name === 'diagnosis_report') {
+                        expect(event.data.response).toEqual(value)
+                        done()
+                    }
+                })
+                ws.send('{"name": "diagnosis_report"}')
+            })
+        })
+    })
+}
 
 describe('Diagnosis report', () => {
-    let wss
-    let agent
-
     afterEach(async (done) => {
         jest.clearAllMocks()
         await agent.destroy()
@@ -11,60 +31,15 @@ describe('Diagnosis report', () => {
     })
 
     it('should start and answer not supported feature', (done) => {
-        wss = new WebSocket.Server({
-            port: 3101
-        })
-
-        wss.on('listening', () => {
-            agent = require('../index')({
-                appName: 'test',
-                serverUrl: 'ws://localhost:3101'
-            })
-
-            agent.ws.on('open', () => {
-                expect(typeof agent.addEvent).toEqual('function')
-                wss.clients.forEach(ws => {
-                    ws.on('message', (msg) => {
-                        const event = JSON.parse(msg)
-                        if (event.name === 'diagnosis_report') {
-                            expect(event.data.response).toEqual('not supported')
-                            done()
-                        }
-                    })
-                    ws.send('{"name": "diagnosis_report"}')
-                })
-            })
-        })
+        wss = utils.createWSS(3101)
+        checkResults(done, 'not supported')
     })
 
     it('should start and answer ok', (done) => {
-        wss = new WebSocket.Server({
-            port: 3101
-        })
-
         process.report = {
             getReport: () => { return { response: 'ok' } }
         }
-
-        wss.on('listening', () => {
-            agent = require('../index')({
-                appName: 'test',
-                serverUrl: 'ws://localhost:3101'
-            })
-
-            agent.ws.on('open', () => {
-                expect(typeof agent.addEvent).toEqual('function')
-                wss.clients.forEach(ws => {
-                    ws.on('message', (msg) => {
-                        const event = JSON.parse(msg)
-                        if (event.name === 'diagnosis_report') {
-                            expect(event.data.response).toEqual('ok')
-                            done()
-                        }
-                    })
-                    ws.send('{"name": "diagnosis_report"}')
-                })
-            })
-        })
+        wss = utils.createWSS(3101)
+        checkResults(done, 'ok')
     })
 })

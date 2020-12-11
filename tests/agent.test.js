@@ -1,4 +1,21 @@
 const WebSocket = require('ws')
+const utils = require('./utils')
+
+const cpuProfilingTest = (wss, agent, done, start = true) => {
+    agent.ws.on('open', () => {
+        agent.ws.on('message', (msg) => {
+            if (msg === 'cpu_profiling_stop') {
+                done()
+            }
+        })
+        expect(typeof agent.addEvent).toEqual('function')
+
+        wss.clients.forEach(ws => {
+            if (start) ws.send('cpu_profiling_start')
+            ws.send('cpu_profiling_stop')
+        })
+    })
+}
 
 describe('Agent', () => {
     describe('Errors', () => {
@@ -26,12 +43,10 @@ describe('Agent', () => {
         })
 
         it('should start even without inspector', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', () => {
-                agent = require('../index')({
+                agent = utils.createAgent(null, {
                     appName: 'test',
                     serverUrl: 'ws://localhost:3100'
                 })
@@ -44,110 +59,43 @@ describe('Agent', () => {
         })
 
         it('should start and use CPU profiling', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', () => {
-                agent = require('../index')({
-                    appName: 'test',
-                    serverUrl: 'ws://localhost:3100',
-                    inspector: {
-                        storage: {
-                            type: 'raw'
-                        }
-                    }
-                })
+                agent = utils.createAgent(3100)
 
-                agent.ws.on('open', () => {
-                    agent.ws.on('message', (msg) => {
-                        if (msg === 'cpu_profiling_stop') {
-                            done()
-                        }
-                    })
-                    expect(typeof agent.addEvent).toEqual('function')
-
-                    wss.clients.forEach(ws => {
-                        ws.send('cpu_profiling_start')
-                        ws.send('cpu_profiling_stop')
-                    })
-                })
+                cpuProfilingTest(wss, agent, done)
             })
         })
 
         it('should start and use CPU profiling but failed', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3101)
 
             wss.on('listening', () => {
-                agent = require('../index')({
+                agent = utils.createAgent(null, {
                     appName: 'test',
-                    serverUrl: 'ws://localhost:3100'
+                    serverUrl: 'ws://localhost:3101'
                 })
 
-                agent.ws.on('open', () => {
-                    agent.ws.on('message', (msg) => {
-                        if (msg === 'cpu_profiling_stop') {
-                            done()
-                        }
-                    })
-                    expect(typeof agent.addEvent).toEqual('function')
-
-                    wss.clients.forEach(ws => {
-                        ws.send('cpu_profiling_start')
-                        ws.send('cpu_profiling_stop')
-                    })
-                })
+                cpuProfilingTest(wss, agent, done)
             })
         })
 
         it('should stop CPU profiling but failed (no start)', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', () => {
-                agent = require('../index')({
-                    appName: 'test',
-                    serverUrl: 'ws://localhost:3100',
-                    inspector: {
-                        storage: {
-                            type: 'raw'
-                        }
-                    }
-                })
+                agent = utils.createAgent(3100)
 
-                agent.ws.on('open', () => {
-                    agent.ws.on('message', (msg) => {
-                        if (msg === 'cpu_profiling_stop') {
-                            done()
-                        }
-                    })
-                    expect(typeof agent.addEvent).toEqual('function')
-
-                    wss.clients.forEach(ws => {
-                        ws.send('cpu_profiling_stop')
-                    })
-                })
+                cpuProfilingTest(wss, agent, done, false)
             })
         })
 
         it('should start and use CPU profiling with custom max duration', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', () => {
-                agent = require('../index')({
-                    appName: 'test',
-                    serverUrl: 'ws://localhost:3100',
-                    inspector: {
-                        storage: {
-                            type: 'raw'
-                        }
-                    }
-                })
+                agent = utils.createAgent(3100)
 
                 agent.ws.on('open', () => {
                     const mockCallback = jest.spyOn(agent._events, 'cpu_profiling_stop')
@@ -166,20 +114,10 @@ describe('Agent', () => {
         })
 
         it('should start and use CPU profiling with custom max duration but stop manually before the expiration', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', () => {
-                agent = require('../index')({
-                    appName: 'test',
-                    serverUrl: 'ws://localhost:3100',
-                    inspector: {
-                        storage: {
-                            type: 'raw'
-                        }
-                    }
-                })
+                agent = utils.createAgent(3100)
 
                 agent.ws.on('open', () => {
                     const mockCallback = jest.spyOn(agent._events, 'cpu_profiling_stop')
@@ -207,20 +145,10 @@ describe('Agent', () => {
         })
 
         it('should start and use CPU profiling with custom max duration but stop manually before the expiration', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', () => {
-                agent = require('../index')({
-                    appName: 'test',
-                    serverUrl: 'ws://localhost:3100',
-                    inspector: {
-                        storage: {
-                            type: 'raw'
-                        }
-                    }
-                })
+                agent = utils.createAgent(3100)
 
                 agent.ws.on('open', () => {
                     agent._events.cpu_profiling_start({}, agent.ws, agent.inspector)
@@ -236,15 +164,10 @@ describe('Agent', () => {
         })
 
         it('should start and use unkonwn event', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', () => {
-                agent = require('../index')({
-                    appName: 'test',
-                    serverUrl: 'ws://localhost:3100'
-                })
+                agent = utils.createAgent(3100)
 
                 agent.ws.on('open', () => {
                     agent.ws.on('message', (msg) => {
@@ -288,9 +211,7 @@ describe('Agent', () => {
         })
 
         it('should start and use custom event after WS is connected', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', async () => {
                 agent = require('../index')({
@@ -315,9 +236,7 @@ describe('Agent', () => {
 
         // test reconnection after one hearbeat
         it('should start and terminate after one heartbeat', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', () => {
                 agent = require('../index')({
@@ -346,9 +265,7 @@ describe('Agent', () => {
 
         // test reconnection when server is down
         it('should start and and try to reconnect', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', () => {
                 agent = require('../index')({
@@ -380,15 +297,10 @@ describe('Agent', () => {
         })
 
         it('should handle event as JSON object', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', () => {
-                agent = require('../index')({
-                    appName: 'test',
-                    serverUrl: 'ws://localhost:3100'
-                })
+                agent = utils.createAgent(3100)
 
                 agent.addEvent('custom_event_json', (event) => {
                     expect(event.name).toEqual('custom_event_json')
@@ -407,15 +319,10 @@ describe('Agent', () => {
         })
 
         it('should start and use extract env variables', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', () => {
-                agent = require('../index')({
-                    appName: 'test',
-                    serverUrl: 'ws://localhost:3100'
-                })
+                agent = utils.createAgent(3100)
 
                 agent.ws.on('open', () => {
                     expect(typeof agent.addEvent).toEqual('function')
@@ -435,15 +342,10 @@ describe('Agent', () => {
         })
 
         it('should start and use extract package file', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', () => {
-                agent = require('../index')({
-                    appName: 'test',
-                    serverUrl: 'ws://localhost:3100'
-                })
+                agent = utils.createAgent(3100)
 
                 agent.ws.on('open', () => {
                     expect(typeof agent.addEvent).toEqual('function')
@@ -463,15 +365,10 @@ describe('Agent', () => {
         })
 
         it('should start and use extract dependencies but failed', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', () => {
-                agent = require('../index')({
-                    appName: 'test',
-                    serverUrl: 'ws://localhost:3100'
-                })
+                agent = utils.createAgent(3100)
 
                 agent.ws.on('open', () => {
                     expect(typeof agent.addEvent).toEqual('function')
@@ -492,17 +389,12 @@ describe('Agent', () => {
         })
 
         it('should start and use extract dependencies', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             process.env.DEP_PATH = '/tests/node_modules_folder_example'
 
             wss.on('listening', () => {
-                agent = require('../index')({
-                    appName: 'test',
-                    serverUrl: 'ws://localhost:3100'
-                })
+                agent = utils.createAgent(3100)
 
                 agent.ws.on('open', () => {
                     expect(typeof agent.addEvent).toEqual('function')
@@ -526,20 +418,10 @@ describe('Agent', () => {
         })
 
         it('should start and extract memory dump', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', () => {
-                agent = require('../index')({
-                    appName: 'test',
-                    serverUrl: 'ws://localhost:3100',
-                    inspector: {
-                        storage: {
-                            type: 'raw'
-                        }
-                    }
-                })
+                agent = utils.createAgent(3100)
 
                 agent.ws.on('open', () => {
                     expect(typeof agent.addEvent).toEqual('function')
@@ -561,20 +443,10 @@ describe('Agent', () => {
         })
 
         it('should start and use code coverage', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', () => {
-                agent = require('../index')({
-                    appName: 'test',
-                    serverUrl: 'ws://localhost:3100',
-                    inspector: {
-                        storage: {
-                            type: 'raw'
-                        }
-                    }
-                })
+                agent = utils.createAgent(3100)
 
                 agent.ws.on('open', () => {
                     agent.ws.on('message', (msg) => {
@@ -593,20 +465,10 @@ describe('Agent', () => {
         })
 
         it('should start and use memory sampling', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', () => {
-                agent = require('../index')({
-                    appName: 'test',
-                    serverUrl: 'ws://localhost:3100',
-                    inspector: {
-                        storage: {
-                            type: 'raw'
-                        }
-                    }
-                })
+                agent = utils.createAgent(3100)
 
                 agent.ws.on('open', () => {
                     agent.ws.on('message', (msg) => {
@@ -633,15 +495,10 @@ describe('Agent', () => {
         })
 
         it('should send connection data', (done) => {
-            wss = new WebSocket.Server({
-                port: 3100
-            })
+            wss = utils.createWSS(3100)
 
             wss.on('listening', () => {
-                agent = require('../index')({
-                    appName: 'test',
-                    serverUrl: 'ws://localhost:3100'
-                })
+                agent = utils.createAgent(3100)
 
                 agent.ws.on('open', () => {
                     wss.clients.forEach(ws => {

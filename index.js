@@ -7,6 +7,7 @@ const WebSocket = require('ws')
 const Inspector = require('inspector-api')
 const { v4: uuid } = require('uuid')
 const utils = require('./utils')
+const path = require('path')
 
 const heartbeat = (ws, delay) => {
     clearTimeout(ws.pingTimeout)
@@ -41,7 +42,7 @@ const connectToWSS = (config, inspector, destroyed) => {
                 hostname: hostname,
                 additionalInfo: {
                     agentType: 'node',
-                    agentVersion: require(`${__dirname}/package.json`).version,
+                    agentVersion: require(path.join(__dirname, '/package.json')).version,
                     appVersion: utils.extractPackageFile().version,
                     nodeVersion: process.version,
                     env: process.env.NODE_ENV
