@@ -107,7 +107,7 @@ describe('Agent', () => {
                     setTimeout(() => {
                         expect(mockCallback.mock.calls.length).toEqual(1)
                         done()
-                    }, 350)
+                    }, 500)
 
                     wss.clients.forEach(ws => {
                         ws.send('{"name":"cpu_profiling_start","config":{"duration":200}}')
