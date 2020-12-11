@@ -4,5 +4,3 @@ module.exports = {
     collectCoverageFrom: ['index.js', 'utils.js'],
     coverageDirectory: './coverage'
 }
-
-jest.setTimeout(10000)

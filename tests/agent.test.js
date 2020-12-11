@@ -18,6 +18,8 @@ const cpuProfilingTest = (wss, agent, done, start = true) => {
     })
 }
 
+jest.setTimeout(10000)
+
 describe('Agent', () => {
     describe('Errors', () => {
         it('should return an error cause no app name', () => {
