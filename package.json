@@ -33,6 +33,10 @@
     "test": "NODE_ENV=test ./node_modules/.bin/jest",
     "lint": "./node_modules/.bin/eslint ./"
   },
+  "engines": {
+    "node": ">=10.0.0",
+    "npm": ">=6.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/wallet77/node-health-agent"
