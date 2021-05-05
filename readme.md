@@ -1,5 +1,3 @@
-# Node agent for Node health project.
-
 [![GitHub release](https://img.shields.io/npm/v/node-health-agent.svg)](https://github.com/wallet77/node-health-agent/releases/)
 [![GitHub license](https://img.shields.io/github/license/wallet77/node-health-agent)](https://github.com/wallet77/node-health-agent/blob/master/LICENSE)
 [![CI pipeline](https://github.com/wallet77/node-health-agent/workflows/Node.js%20CI/badge.svg)](https://github.com/wallet77/node-health-agent/actions?query=workflow%3A%22Node.js+CI%22)
@@ -10,6 +8,8 @@
 [![Dependencies updates](https://img.shields.io/david/wallet77/node-health-agent.svg)](https://github.com/wallet77/node-health-agent)
 [![Dependencies updates](https://img.shields.io/david/dev/wallet77/node-health-agent.svg)](https://github.com/wallet77/node-health-agent)
 [![Node version](https://img.shields.io/node/v-lts/node-health-agent.svg)](https://github.com/wallet77/node-health-agent)
+
+# Node agent for Node health project.
 
 # Purpose
 
