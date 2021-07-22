@@ -30,7 +30,7 @@
     "variables"
   ],
   "scripts": {
-    "test": "NODE_ENV=test ./node_modules/.bin/jest",
+    "test": "NODE_ENV=test ./node_modules/.bin/jest --forceExit",
     "lint": "./node_modules/.bin/eslint ./"
   },
   "engines": {
