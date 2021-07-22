@@ -4,10 +4,10 @@ describe('Memory & CPU usage', () => {
     let wss
     let agent
 
-    afterEach(async (done) => {
+    afterEach(async () => {
         jest.clearAllMocks()
         await agent.destroy()
-        wss.close(done)
+        wss.close()
     })
 
     it('should start and get memory and CPU info', (done) => {

@@ -39,10 +39,11 @@ describe('Agent', () => {
         let wss
         let agent
 
-        afterEach(async (done) => {
+        afterEach(async () => {
             jest.clearAllMocks()
             await agent.destroy()
-            wss.close(done)
+            wss.close()
+            wss.removeAllListeners()
         })
 
         it('should start even without inspector', (done) => {

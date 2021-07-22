@@ -24,10 +24,10 @@ const checkResults = function (done, value) {
 }
 
 describe('Diagnosis report', () => {
-    afterEach(async (done) => {
+    afterEach(async () => {
         jest.clearAllMocks()
         await agent.destroy()
-        wss.close(done)
+        wss.close()
     })
 
     it('should start and answer not supported feature', (done) => {
