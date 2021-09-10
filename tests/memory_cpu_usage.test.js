@@ -19,6 +19,7 @@ describe('Memory & CPU usage', () => {
             agent.ws.on('open', () => {
                 wss.clients.forEach(ws => {
                     ws.on('message', (msg) => {
+                        msg = msg.toString('utf8')
                         const event = JSON.parse(msg)
                         if (event.name === 'memory_cpu_usage') {
                             expect(event.data.totalmem).toEqual(require('os').totalmem())

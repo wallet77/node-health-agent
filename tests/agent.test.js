@@ -5,6 +5,7 @@ const semver = require('semver')
 const cpuProfilingTest = (wss, agent, done, start = true) => {
     agent.ws.on('open', () => {
         agent.ws.on('message', (msg) => {
+            msg = msg.toString('utf8')
             if (msg === 'cpu_profiling_stop') {
                 done()
             }
@@ -175,6 +176,7 @@ describe('Agent', () => {
 
                 agent.ws.on('open', () => {
                     agent.ws.on('message', (msg) => {
+                        msg = msg.toString('utf8')
                         if (msg === 'unknown_event') {
                             done()
                         }
@@ -455,6 +457,7 @@ describe('Agent', () => {
 
                     agent.ws.on('open', () => {
                         agent.ws.on('message', (msg) => {
+                            msg = msg.toString('utf8')
                             if (msg === 'code_coverage_stop') {
                                 done()
                             }
@@ -478,6 +481,7 @@ describe('Agent', () => {
 
                 agent.ws.on('open', () => {
                     agent.ws.on('message', (msg) => {
+                        msg = msg.toString('utf8')
                         if (msg === 'memory_sampling_stop') {
                             done()
                         }
@@ -486,6 +490,7 @@ describe('Agent', () => {
 
                     wss.clients.forEach(ws => {
                         ws.on('message', (msg) => {
+                            msg = msg.toString('utf8')
                             const event = JSON.parse(msg)
                             if (event.name === 'memory_sampling_stop') {
                                 expect(typeof event.data).toEqual('object')

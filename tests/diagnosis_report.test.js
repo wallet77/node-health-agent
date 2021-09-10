@@ -11,6 +11,7 @@ const checkResults = function (done, value) {
             expect(typeof agent.addEvent).toEqual('function')
             wss.clients.forEach(ws => {
                 ws.on('message', (msg) => {
+                    msg = msg.toString('utf8')
                     const event = JSON.parse(msg)
                     if (event.name === 'diagnosis_report') {
                         expect(event.data.response).toEqual(value)
