@@ -1,6 +1,6 @@
 {
   "name": "node-health-agent",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "",
   "module": "./index.js",
   "exports": {
