@@ -44,18 +44,18 @@
   "author": "wallet77",
   "license": "MIT",
   "dependencies": {
-    "debug": "4.3.2",
-    "inspector-api": "1.4.2",
+    "debug": "4.3.3",
+    "inspector-api": "1.4.3",
     "uuid": "8.3.2",
-    "ws": "8.2.2"
+    "ws": "8.3.0"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
-    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
-    "jest": "^27.1.1",
+    "jest": "^27.4.5",
     "semver": "^7.3.5"
   }
 }
