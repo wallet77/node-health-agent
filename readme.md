@@ -24,6 +24,7 @@ Supported and tested : >= 8.0
 
 | Version       | Supported     | Tested         |
 |:-------------:|:-------------:|:--------------:|
+| 16.x          | yes           | yes            |
 | 14.x          | yes           | yes            |
 | 12.x          | yes           | yes            |
 
