@@ -47,15 +47,15 @@
     "debug": "4.3.4",
     "inspector-api": "1.4.3",
     "uuid": "8.3.2",
-    "ws": "8.5.0"
+    "ws": "8.8.0"
   },
   "devDependencies": {
-    "eslint": "^8.13.0",
-    "eslint-config-standard": "^16.0.3",
+    "eslint": "^8.18.0",
+    "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.0",
-    "jest": "^27.5.1",
+    "jest": "^28.1.1",
     "semver": "^7.3.7"
   }
 }
