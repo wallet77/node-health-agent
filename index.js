@@ -39,7 +39,7 @@ const connectToWSS = (config, inspector, destroyed) => {
             const upgrade = {
                 type: 'upgrade',
                 appName: config.appName,
-                hostname: hostname,
+                hostname,
                 additionalInfo: {
                     agentType: 'node',
                     agentVersion: require(path.join(__dirname, '/package.json')).version,
@@ -93,14 +93,14 @@ const connectToWSS = (config, inspector, destroyed) => {
     })
 
     return {
-        inspector: inspector,
+        inspector,
         destroy: async () => {
             destroyed = true
             if (inspector) await inspector.destroy()
             clearTimeout(ws.pingTimeout)
             ws.terminate()
         },
-        ws: ws,
+        ws,
         addEvent: (event, fn) => {
             events[event] = fn
             // if WS is not connected
@@ -113,9 +113,9 @@ const connectToWSS = (config, inspector, destroyed) => {
             // send event immediately
             const data = {
                 data: {
-                    event: event
+                    event
                 },
-                hostname: hostname,
+                hostname,
                 name: 'addEvent',
                 type: 'json'
             }
