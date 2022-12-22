@@ -5,8 +5,6 @@
 [![Opened issues](https://img.shields.io/github/issues-raw/wallet77/node-health-agent)](https://github.com/wallet77/node-health-agent/issues)
 [![Opened PR](https://img.shields.io/github/issues-pr-raw/wallet77/node-health-agent)](https://github.com/wallet77/node-health-agent/pulls)
 [![DeepScan grade](https://deepscan.io/api/teams/12061/projects/15018/branches/292503/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=12061&pid=15018&bid=292503)
-[![Dependencies updates](https://img.shields.io/david/wallet77/node-health-agent.svg)](https://github.com/wallet77/node-health-agent)
-[![Dependencies updates](https://img.shields.io/david/dev/wallet77/node-health-agent.svg)](https://github.com/wallet77/node-health-agent)
 [![Node version](https://img.shields.io/node/v-lts/node-health-agent.svg)](https://github.com/wallet77/node-health-agent)
 
 # Node agent for Node health project.
@@ -24,9 +22,9 @@ Supported and tested : >= 8.0
 
 | Version       | Supported     | Tested         |
 |:-------------:|:-------------:|:--------------:|
+| 18.x          | yes           | yes            |
 | 16.x          | yes           | yes            |
 | 14.x          | yes           | yes            |
-| 12.x          | yes           | yes            |
 
 **In order to have all features we recommend to use at least Node.js version 10 or higher.**
 
